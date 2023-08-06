@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Configuração do Ambiente') {
+            steps {
+                // Etapa de preparação do ambiente, como instalação de dependências, se necessário.
+                echo 'Configurando ambiente...'
+            }
+        }
+
+        stage('Backup do Roteador') {
+            steps {
+                script {
+                    // Definir as informações do roteador
+                    def routerIP = '192.168.100.1'
+                    def routerUsername = 'root'
+                    def routerPassword = 'admin'
+
+                    // Comando para executar o backup no roteador via SSH no Windows
+                    def backupCommand = "sshpass -p '${routerPassword}' ssh ${routerUsername}@${routerIP} \"show running-config\" > backup_router_\$(date +%Y%m%d%H%M%S).cfg"
+
+                    // Executar o comando de backup no roteador
+                    bat returnStatus: true, script: backupCommand
+                }
+            }
+        }
+
+    post {
+        success {
+            // Etapa para notificar sobre o resultado do backup em caso de sucesso
+            emailext body: 'O pipeline foi executado com sucesso.',
+                    subject: 'Notificação de Sucesso - Pipeline de Backup do Roteador',
+                    to: 'wallaceseles00@gmail.com'
+        }
+        failure {
+            // Etapa para notificar sobre o resultado do backup em caso de falha
+            emailext body: 'O pipeline falhou. Verifique o log para detalhes.',
+                    subject: 'Notificação de Falha - Pipeline de Backup do Roteador',
+                    to: 'wallaceseles00@gmail.com'
+        }
+        always {
+            // Etapa opcional para executar ações sempre após o pipeline, como limpar recursos temporários.
+            echo 'etapa final...'
+        }
+    }
+}
