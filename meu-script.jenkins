@@ -25,6 +25,7 @@ pipeline {
                 }
             }
         }
+    } // Fechar o bloco "stages" aqui
 
     post {
         success {
