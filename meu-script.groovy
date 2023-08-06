@@ -12,9 +12,9 @@ pipeline {
             steps {
                 script {
                     // Definir as informações do roteador
-                    def routerIP = 'IP_DO_ROTEADOR'
-                    def routerUsername = 'USUARIO_DO_ROTEADOR'
-                    def routerPassword = 'SENHA_DO_ROTEADOR'
+                    def routerIP = '192.168.100.1'
+                    def routerUsername = 'root'
+                    def routerPassword = 'admin'
 
                     // Comando para executar o backup no roteador via SSH
                     def backupCommand = "sshpass -p '${routerPassword}' ssh ${routerUsername}@${routerIP} 'show running-config' > backup_router_$(date +%Y%m%d%H%M%S).cfg"
@@ -46,22 +46,11 @@ pipeline {
 
                     emailext body: body,
                             subject: subject,
-                            to: 'seu-email@exemplo.com'
+                            to: 'wallaceseles00@gmail.com'
                 }
             }
         }
 
-        stage('Enviar para o GitHub') {
-            steps {
-                // Fazendo o commit do arquivo de backup e enviando para o GitHub
-                sh 'git config --global user.email "jenkins@example.com"'
-                sh 'git config --global user.name "Jenkins"'
-                sh 'git add backup_router*.cfg'
-                sh 'git commit -m "Atualizar backup do roteador [Jenkins Build]"'
-                sh 'git push origin master'
-            }
-        }
-    }
 
     post {
         always {
