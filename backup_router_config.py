@@ -1,25 +1,36 @@
-import sys
-from netmiko import ConnectHandler
+import paramiko
+import datetime
 
-# Recebendo os argumentos passados pela pipeline
-router_ip = sys.argv[1]
-username = sys.argv[2]
-password = sys.argv[3]
+# Definir as informações do roteador
+routerIP = '192.168.100.1'
+routerUsername = 'root'
+routerPassword = 'admin'  # Substitua pela senha correta
 
-# Configurando o roteador
-router = {
-    "device_type": "cisco_ios",
-    "ip": router_ip,
-    "username": username,
-    "password": password,
-}
+# Criar uma conexão SSH com o roteador
+ssh_client = paramiko.SSHClient()
+ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-# Conectar ao roteador e salvar as configurações
 try:
-    with ConnectHandler(**router) as net_connect:
-        output = net_connect.send_command("show running-config")
-        with open("router_config.txt", "w") as f:
-            f.write(output)
-    print("Configurações salvas com sucesso.")
-except Exception as e:
-    print("Erro ao salvar as configurações:", str(e))
+    ssh_client.connect(routerIP, username=routerUsername, password=routerPassword)
+
+    # Executar o comando para obter o backup da configuração
+    stdin, stdout, stderr = ssh_client.exec_command('show running-config')
+
+    # Ler o resultado do comando
+    output = stdout.read().decode()
+
+    # Data e hora para nomear o arquivo de backup
+    data_hora = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    nome_arquivo = f'backup_router_{data_hora}.cfg'
+
+    # Salvar o backup em um arquivo local
+    with open(nome_arquivo, 'w') as arquivo:
+        arquivo.write(output)
+
+    print(f'Backup do roteador salvo em {nome_arquivo}')
+except paramiko.AuthenticationException:
+    print('Falha na autenticação. Verifique as credenciais.')
+except paramiko.SSHException as e:
+    print(f'Erro SSH: {e}')
+finally:
+    ssh_client.close()
