@@ -32,13 +32,13 @@ pipeline {
             // Etapa para notificar sobre o resultado do backup em caso de sucesso
             emailext body: 'O pipeline foi executado com sucesso.',
                     subject: 'Notificação de Sucesso - Pipeline de Backup do Roteador',
-                    to: 'wallaceseles00@gmail.com'
+                    to: 'uallfaceaprendiz@gmail.com'
         }
         failure {
             // Etapa para notificar sobre o resultado do backup em caso de falha
             emailext body: 'O pipeline falhou. Verifique o log para detalhes.',
                     subject: 'Notificação de Falha - Pipeline de Backup do Roteador',
-                    to: 'wallaceseles00@gmail.com'
+                    to: 'uallfaceaprendiz@gmail.com'
         }
         always {
             // Etapa opcional para executar ações sempre após o pipeline, como limpar recursos temporários.
