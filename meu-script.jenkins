@@ -11,17 +11,10 @@ pipeline {
 
         stage('Backup do Roteador') {
             steps {
+                // Executar o script Python para fazer o backup do roteador diretamente no pipeline
                 script {
-                    // Definir as informações do roteador
-                    def routerIP = '192.168.100.1'
-                    def routerUsername = 'root'
-                    def routerPassword = 'admin'
-
-                    // Comando para executar o backup no roteador via SSH no Windows
-                    def backupCommand = "sshpass -p '${routerPassword}' ssh ${routerUsername}@${routerIP} \"show running-config\" > backup_router_\$(date +%Y%m%d%H%M%S).cfg"
-
-                    // Executar o comando de backup no roteador
-                    bat returnStatus: true, script: backupCommand
+                    def output = sh script: 'python backup_router.py', returnStdout: true
+                    writeFile file: "backup_router.cfg", text: output.trim()
                 }
             }
         }
